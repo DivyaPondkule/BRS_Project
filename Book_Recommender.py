@@ -1,7 +1,6 @@
 import pickle
 import streamlit as st
-import numpy as np
-import bz2file as bz2
+
 
 st.set_page_config(
     page_title="Book Recommendation System",
@@ -10,19 +9,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-def decompress_pickle(file):
-    data = bz2.BZ2File(file, 'rb')
-    data = pickle.load(data)
-    return data
-
-user_rating_pivot2 = decompress_pickle('user_rating_pivot2.pbz2')
 
 st.header("Book Recommender system")
 model_knn = pickle.load(open('model_knn.pkl', 'rb'))
 books_name = pickle.load(open('books_name.pkl', 'rb'))
 user_rating = pickle.load(open('user_rating.pkl', 'rb'))
 popular_df = pickle.load(open('popular_df.pkl', 'rb'))
-# user_rating_pivot2 = pickle.load(open('user_rating_pivot2.pkl', 'rb'))
+user_rating_pivot2 = pickle.load(open('user_rating_pivot2.pkl', 'rb'))
 
 selected_books = st.selectbox(
     "Type or select a book",
