@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 st.header("Books popular yearly")
-popular_df_y = pickle.load(open('artifacts/popular_df_y.pkl', 'rb'))
+popular_df_y = pickle.load(open('popular_df_y.pkl', 'rb'))
 
 
 for i in range(len(popular_df_y)):
