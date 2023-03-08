@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 st.header("Top 50 books")
-popular_df = pickle.load(open('artifacts/popular_df.pkl', 'rb'))
+popular_df = pickle.load(open('popular_df.pkl', 'rb'))
 
 
 for i in range(len(popular_df)):
