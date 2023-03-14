@@ -37,7 +37,6 @@ if __name__ == "__main__":
         model_knn = pickle.load(open('model_knn.pkl', 'rb'))
         books_name = pickle.load(open('books_name.pkl', 'rb'))
         user_rating = pickle.load(open('user_rating.pkl', 'rb'))
-        popular_df = pickle.load(open('popular_df.pkl', 'rb'))
         user_rating_pivot2 = pickle.load(open('user_rating_pivot2.pkl', 'rb'))
 
         selected_books = st.selectbox(
