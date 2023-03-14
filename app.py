@@ -56,26 +56,30 @@ if __name__ == "__main__":
 
         def recommend_books(bk_name):
             book_list = []
+
             # index fetch
-            if bk_name == ' ':
-                st.text('Select a book')
-            else:
-                book_id = np.where(user_rating_pivot2.index == bk_name)[0][0]
-                distance, suggestion = model_knn.kneighbors(user_rating_pivot2.iloc[book_id, :].values.reshape(1, -1),
-                                                            n_neighbors=6)
-                poster_url = fetch_poster(suggestion)
-                for i in range(len(suggestion)):
-                    books = user_rating_pivot2.index[suggestion[i]]
-                    for j in books:
-                        book_list.append(j)
-                    return book_list, poster_url
+            book_id = np.where(user_rating_pivot2.index == bk_name)[0][0]
+            distance, suggestion = model_knn.kneighbors(user_rating_pivot2.iloc[book_id, :].values.reshape(1, -1),
+                                                        n_neighbors=6)
+            poster_url = fetch_poster(suggestion)
+            for i in range(len(suggestion)):
+                books = user_rating_pivot2.index[suggestion[i]]
+                for j in books:
+                    book_list.append(j)
+                return book_list, poster_url
 
 
         if st.button('Show Recommendations'):
-            recommendation_books, poster_url = recommend_books(selected_books)
-            for i in range(1, 6):
-                st.text(str(i) + ". " + recommendation_books[i])
-                st.image(poster_url[i])
+            try:
+                if selected_books == " ":
+                    raise Exception
+            except Exception:
+                st.text('Please enter some book!')
+            else:
+                recommendation_books, poster_url = recommend_books(selected_books)
+                for i in range(1, 6):
+                    st.text(str(i) + ". " + recommendation_books[i])
+                    st.image(poster_url[i])
 
     if selected == "Top 50 Books":
         st.header("Top 50 books")
