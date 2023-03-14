@@ -2,11 +2,21 @@ import pickle
 import streamlit as st
 import numpy as np
 from streamlit_option_menu import option_menu
-from PIL import Image
+
+import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+
+books = pd.read_csv('Cleaned Data/cleaned_books.csv')
+users = pd.read_csv('Cleaned Data/cleaned_users.csv')
+ratings = pd.read_csv('Cleaned Data/cleaned_ratings.csv')
+
 
 if __name__ == "__main__":
     st.set_page_config(
-        page_title="Book Recommendation System",
+        page_title="Book Recommendation Application",
         page_icon="📚",
         layout="centered",
     )
@@ -22,7 +32,7 @@ if __name__ == "__main__":
 
 
     if selected== "Home":
-        st.header("Book Recommender system")
+        st.header("Book Recommendation Application")
 
         model_knn = pickle.load(open('model_knn.pkl', 'rb'))
         books_name = pickle.load(open('books_name.pkl', 'rb'))
@@ -74,7 +84,7 @@ if __name__ == "__main__":
                 if selected_books == " ":
                     raise Exception
             except Exception:
-                st.text('Please enter some book!')
+                st.text('Please enter book name in the search box! 😢')
             else:
                 recommendation_books, poster_url = recommend_books(selected_books)
                 for i in range(1, 6):
@@ -101,23 +111,110 @@ if __name__ == "__main__":
     if selected == "Analysis":
         st.header("Analysis")
 
-        image1 = Image.open('images/A_1.png')
-        st.image(image1, caption='Analysis 1 - Author with highest no.of books published')
+        # Graph 1
+        fig1=plt.figure(figsize=(10, 8))
+        sns.countplot(y="Book-Author", palette='Paired', data=books, order=books['Book-Author'].value_counts().index[0:10])
+        plt.title("Analysis 1 - Author with highest no.of books published")
 
-        image2 = Image.open('images/A_2.png')
-        st.image(image2, caption='Analysis 2 - Top publishers')
+        # Add figure in streamlit app
+        st.pyplot(fig1)
 
-        image3 = Image.open('images/A_3.png')
-        st.image(image3, caption='Analysis 3 - Top 10 highest rated books')
 
-        image4 = Image.open('images/A_4.png')
-        st.image(image4, caption='Analysis 4 - Top 10 highest rated authors')
+        # Graph 2
+        fig2=plt.figure(figsize=(10, 8))
+        sns.countplot(y="Publisher", palette='Paired', data=books, order=books['Publisher'].value_counts().index[0:10])
+        plt.title("Analysis 2 - Top publishers")
 
-        image5 = Image.open('images/A_5.png')
-        st.image(image5, caption='Analysis 5 - Number of Books published on yearly basis')
+        # Add figure in streamlit app
+        st.pyplot(fig2)
 
-        image6 = Image.open('images/A_6.png')
-        st.image(image6, caption='Analysis 6 - Age distribution')
 
-        image7 = Image.open('images/A_7.png')
-        st.image(image7, caption='Analysis 7 - Rating distribution')
+
+
+        explicit_rating = ratings[ratings['Book-Rating'] != 0]
+
+        # Merging  all three datasets
+        # for the rating dataset, we are only taking the explicit rating dataset
+
+        df = pd.merge(books, explicit_rating, on='ISBN', how='inner')
+        df = pd.merge(df, users, on='User-ID', how='inner')
+
+
+
+
+        # Graph 3
+
+        popular = df.groupby('Book-Title')['Book-Rating'].sum().reset_index().sort_values(by='Book-Rating',
+                                                                                          ascending=False)[:10]
+        popular.columns = ['Book-Title', 'Count']
+
+        fig3=plt.figure(figsize=[10, 8])
+        plt.title('Analysis 3 - Top 10 highest rated books')
+        sns.barplot(data=popular, y='Book-Title', x='Count', palette='Set2')
+
+        # Add figure in streamlit app
+        st.pyplot(fig3)
+
+
+
+
+
+
+        # Graph 4
+
+        author = df.groupby('Book-Author')['Book-Rating'].sum().reset_index().sort_values(by='Book-Rating',ascending=False)[:10]
+        fig4=plt.figure(figsize=[10, 8])
+        plt.title('Analysis 4 - Top 10 highest rated authors')
+        sns.barplot(data=author, y='Book-Author', x='Book-Rating', palette='Set2')
+
+        # Add figure in streamlit app
+        st.pyplot(fig4)
+
+
+
+
+
+
+        # Graph 5
+        year = books['Year-Of-Publication'].value_counts().sort_index()
+        year = year.where(year > 5)
+        fig5=plt.figure(figsize=(10, 8))
+        plt.bar(year.index, year.values)
+        plt.xlabel('Year of Publication')
+        plt.ylabel('Counts')
+        plt.title("Analysis 5 - Number of Books published on yearly basis")
+
+        # Add figure in streamlit app
+        st.pyplot(fig5)
+
+
+        # Graph 6
+        fig6=plt.figure(figsize=(10, 8))
+        users.Age.hist(bins=[10 * i for i in range(1, 10)], color='cyan')
+        plt.title('Analysis 6 - Age distribution')
+        plt.xlabel('Age')
+        plt.ylabel('Count')
+
+
+        # Add figure in streamlit app
+        st.pyplot(fig6)
+
+
+
+
+
+
+        # Graph 7
+
+        fig7=plt.figure(figsize=(10, 8))
+        sns.countplot(x="Book-Rating", palette='Paired', data=explicit_rating)
+        plt.title('Analysis 7 - Rating distribution')
+
+        # Add figure in streamlit app
+        st.pyplot(fig7)
+
+
+
+
+
+
